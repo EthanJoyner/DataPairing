@@ -15,3 +15,9 @@ The personal code is an indicator code that can determine the perfecnce work loc
 - 6th asks driving? 
 - 7th asks farming?
 
+## What you need for this program:
+- Google Sheets API
+- Python 3.7 or > 
+- oauth2client 
+- A Goolge spreadsheet ID (Can be found in the URL of one)
+- A cred file from google API

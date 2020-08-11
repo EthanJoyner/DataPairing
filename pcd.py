@@ -1,102 +1,79 @@
-import csv
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
-#Name list maker
-nameList = []
-with open('names.csv') as names_csv:
-    for name in names_csv:
-        print(name)
-        nameList.append(name.replace("\n",""))
-print("nameList:")
-print(nameList)
+gc = gspread.service_account(filename='Cred.json')
+sh = gc.open_by_key('Enter Sheets URL Here')
+worksheet = sh.sheet1
 
-# Code list Maker
-codeList =[]
-with open('pcdCodes.csv') as codes_csv:
-    currentCode= ""
-    for line in codes_csv:
-        idx=0
-        for chara in line:
-            if idx % 2 == 0:
-                currentCode = currentCode + chara
-            else:
-                currentCode = currentCode
-            idx += 1 
-        codeList.append(currentCode)
-        currentCode = ""
-print("codeList:")
-print(codeList)
-
-
-# Binder
-nameCodeList=[]
-smallsec=[]
-if len(codeList) == len(nameList):
-    thisIdx = 0
-    for x in codeList:
-        smallsec.append(nameList[thisIdx])
-        smallsec.append(codeList[thisIdx])
-        nameCodeList.append(smallsec)
-        smallsec=[]
-        thisIdx +=1
-    print("Full Result:")
-    print(nameCodeList)
-else:
-    print("The csv files are out of sync")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#0000 _ _ _ is the key
-#Q1, q2, q3, q4, delivery, Packaging, Farming
-
-
-
+# Hasher Algo
 def codeCheck (sample):
     # q1 check
     if sample[0] == "1":
         print("NW covered")
-    else:
-        print("void")
     # q2 check
     if sample[1] == "1":
         print("NE covered")
-    else:
-        print("void")
     # q3 check
     if sample[2] == "1":
         print("SW covered")
-    else:
-        print("void")
     # q4 check
     if sample[3] == "1":
         print("SE covered")
-    else:
-        print("void")
     # packaging check
     if sample[4] == "p":
         print("Packaging Confimed")
-    else: 
-        print("void")    
     # driving check
     if sample[5] == "d":
         print("Driving Confirmed")
-    else: 
-        print("void")  
     # Farming check
     if sample[6] =="f":
         print("Farming Confirmed")
-    else: 
-        print("void")
+
+fullSheet = worksheet.get_all_records()
+
+nameList = []
+codeList = []
+for value in fullSheet: #Full Dict List
+    currentWorkplace = []
+    idx = 0
+    for index in value.items(): # Dict item pair
+        #print(index)
+        for output in index: # listing of just the items then appending them into a list
+            # print(output)
+            idx += 1
+            if idx % 2 == 0:
+                # print(output)
+                currentWorkplace.append(output)
+    #add to name
+    nameList.append(currentWorkplace[0])
+
+
+    #format code
+    currentWPCode = currentWorkplace[1:]
+    currentFMTcode = ""
+    for chara in currentWPCode:
+         currentFMTcode = currentFMTcode + str(chara)
+    codeList.append(currentFMTcode)
+print("~~~~~~~~~~~~~~~~~~~~~")
+
+if len(codeList) == len(nameList):
+    print("SUCCESS!")
+    # print("codeList: \n" + str(codeList))
+    # print("nameList: \n" + str(nameList))
+    idx3 = 0
+    superList =[]
+    for entry in codeList:
+        currentSuperList = [nameList[idx3], codeList[idx3]]
+        superList.append(currentSuperList)
+        currentSuperList = []
+        idx3 += 1
+else:
+    print("Sync error")
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+for entry in superList:
+    print("The volunteer's, '" + entry[0] + "' conditions.")
+    codeCheck(entry[1])
+    print("\n ~~~~~~~~~~~ \n")
+
